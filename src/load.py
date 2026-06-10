@@ -66,3 +66,45 @@ def load_tracks(df, rejects):
     conn.close()
     logger.info(f"Loaded {len(df)} tracks into stg_tracks")
     logger.info(f"Loaded {len(rejects)} rejected rows into stg_rejects")
+
+def load_artists(df, rejects):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stg_artists (
+            artist_id TEXT PRIMARY KEY,
+            name TEXT,
+            type TEXT,
+            gender TEXT,
+            country TEXT,
+            disambiguation TEXT,
+            _loaded_at TIMESTAMP DEFAULT NOW()
+        )
+    """)
+
+    for _, row in df.iterrows():
+        cursor.execute("""
+            INSERT INTO stg_artists (artist_id, name, type, gender, country, disambiguation)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (artist_id) DO NOTHING
+        """, (
+            row.get('id'),
+            row.get('name'),
+            row.get('type'),
+            row.get('gender'),
+            row.get('country'),
+            row.get('disambiguation')
+        ))
+
+    for reject in rejects:
+        cursor.execute("""
+            INSERT INTO stg_rejects (source_name, raw_payload, reason)
+            VALUES (%s, %s, %s)
+        """, ('musicbrainz_artists', json.dumps({k: (None if str(v) == 'nan' else v) for k, v in reject['row'].items()}, default=str), reject['reason']))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    logger.info(f"Loaded {len(df)} artists into stg_artists")
+    logger.info(f"Loaded {len(rejects)} rejected artists into stg_rejects")
