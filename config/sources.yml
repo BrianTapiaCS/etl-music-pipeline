@@ -1,0 +1,18 @@
+defaults:
+  db_host: localhost
+  db_port: 5432
+  db_name: postgres
+
+sources:
+  - name: spotify_tracks
+    type: csv
+    path: data/spotify-tracks-dataset.csv
+    target_table: stg_tracks
+    pk: track_id
+
+  - name: musicbrainz_artists
+    type: api
+    url: https://musicbrainz.org/ws/2/artist/
+    target_table: stg_artists
+    pk: id
+    query: Drake
