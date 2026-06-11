@@ -66,6 +66,7 @@ def load_tracks(df, rejects):
     conn.close()
     logger.info(f"Loaded {len(df)} tracks into stg_tracks")
     logger.info(f"Loaded {len(rejects)} rejected rows into stg_rejects")
+    logger.info("ingest.end source=spotify_tracks status=success")
 
 def load_artists(df, rejects):
     conn = get_connection()
@@ -108,3 +109,4 @@ def load_artists(df, rejects):
     conn.close()
     logger.info(f"Loaded {len(df)} artists into stg_artists")
     logger.info(f"Loaded {len(rejects)} rejected artists into stg_rejects")
+    logger.info("ingest.end source=musicbrainz_artists status=success")

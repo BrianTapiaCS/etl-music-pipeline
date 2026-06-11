@@ -9,6 +9,10 @@ sources:
     path: data/spotify-tracks-dataset.csv
     target_table: stg_tracks
     pk: track_id
+    rules:
+      - rule: "popularity >= 0 AND popularity <= 100"
+      - rule: "track_id NOT NULL"
+      - rule: "track_name NOT NULL"
 
   - name: musicbrainz_artists
     type: api
@@ -16,3 +20,6 @@ sources:
     target_table: stg_artists
     pk: id
     query: Drake
+    rules:
+      - rule: "id NOT NULL"
+      - rule: "name NOT NULL"

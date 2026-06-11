@@ -3,15 +3,12 @@ import pandas as pd
 import psycopg2
 from dotenv import load_dotenv
 import os
-st.cache_data.clear()
 
 load_dotenv()
 
 st.cache_data.clear()
 
 st.set_page_config(page_title="ETL Music Pipeline", layout="wide")
-
-#st.set_page_config(page_title="ETL Music Pipeline", layout="wide")
 
 def get_connection():
     return psycopg2.connect(
@@ -94,6 +91,31 @@ st.bar_chart(reject_reasons.set_index('reason'))
 
 st.divider()
 
+# three more charts
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.subheader("🔥 Popularity Distribution")
+    pop_bins = pd.cut(df_tracks['popularity'], bins=[0, 25, 50, 75, 100], labels=['0-25', '26-50', '51-75', '76-100'])
+    pop_counts = pop_bins.value_counts().sort_index().reset_index()
+    pop_counts.columns = ['range', 'count']
+    st.bar_chart(pop_counts.set_index('range'))
+
+with col2:
+    st.subheader("🎤 Top 10 Artists")
+    artist_counts = df_tracks['artists'].value_counts().head(10).reset_index()
+    artist_counts.columns = ['artist', 'count']
+    st.bar_chart(artist_counts.set_index('artist'))
+
+with col3:
+    st.subheader("🔞 Explicit vs Clean")
+    explicit_counts = df_tracks['explicit'].value_counts().reset_index()
+    explicit_counts.columns = ['explicit', 'count']
+    explicit_counts['explicit'] = explicit_counts['explicit'].map({True: 'Explicit', False: 'Clean'})
+    st.bar_chart(explicit_counts.set_index('explicit'))
+
+st.divider()
+
 # tracks explorer
 st.subheader("🔍 Tracks Explorer")
 genre_filter = st.selectbox("Filter by genre", ["All"] + sorted(df_tracks['track_genre'].unique().tolist()))
@@ -101,10 +123,14 @@ if genre_filter != "All":
     filtered = df_tracks[df_tracks['track_genre'] == genre_filter]
 else:
     filtered = df_tracks
-st.dataframe(filtered[['track_name', 'artists', 'album_name', 'popularity', 'track_genre']].head(50))
+filtered_display = filtered[['track_name', 'artists', 'album_name', 'popularity', 'track_genre']].head(50).copy()
+filtered_display.index = filtered_display.index - filtered_display.index[0] + 1
+st.dataframe(filtered_display)
 
 st.divider()
 
 # artists table
 st.subheader("🎤 Artists")
-st.dataframe(df_artists[['name', 'type', 'gender', 'country', 'disambiguation']])
+artists_display = df_artists[['name', 'type', 'gender', 'country', 'disambiguation']].copy()
+artists_display.index = range(1, len(artists_display) + 1)
+st.dataframe(artists_display)
