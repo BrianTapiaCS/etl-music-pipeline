@@ -11,68 +11,96 @@ load_dotenv()
 st.set_page_config(
     page_title="ETL Music Pipeline",
     layout="wide",
-    page_icon="🎵",
     initial_sidebar_state="expanded"
 )
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .main { background-color: #0b0d12; }
-    section[data-testid="stSidebar"] {
-        background-color: #111319;
-        border-right: 1px solid #232633;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-    .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: #00d4ff; box-shadow: 0 0 12px #00d4ff; }
-    .brand-text { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; letter-spacing: -0.01em; }
-    .brand-sub { font-size: 0.72rem; color: #5b6478; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.08em; }
-    .metric-card {
-        background: linear-gradient(145deg, #14171f 0%, #10121a 100%);
-        border: 1px solid #232633;
-        border-radius: 10px;
-        padding: 18px 20px;
-        position: relative;
-        overflow: hidden;
-    }
-    .metric-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 2px;
-        background: linear-gradient(90deg, #00d4ff, transparent);
-    }
-    .metric-value { font-size: 2.1rem; font-weight: 800; color: #f1f5f9; line-height: 1.15; letter-spacing: -0.02em; }
-    .metric-label { font-size: 0.7rem; color: #5b6478; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 6px; }
-    .section-header {
-        font-size: 0.78rem; font-weight: 700; color: #8b95a8;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        margin-bottom: 4px; padding-left: 10px;
-        border-left: 2px solid #00d4ff;
-    }
-    .sidebar-block { background-color: #161922; border: 1px solid #232633; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .sidebar-block-label { color: #5b6478; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; margin-bottom: 6px; }
-    .sidebar-block-value { color: #e2e8f0; font-size: 0.88rem; font-weight: 500; }
-    .sidebar-block-sub { color: #5b6478; font-size: 0.74rem; margin-top: 2px; }
-    .pill { display: inline-block; background: #1a2e35; color: #00d4ff; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; margin: 2px 4px 2px 0; }
-    .coverage-big { font-size: 1.6rem; font-weight: 800; color: #00d4ff; }
-    div[data-testid="stDataFrame"] { border: 1px solid #232633; border-radius: 10px; }
-    hr { border-color: #1c1f29 !important; }
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+html, body, [class*="css"] { font-family: 'Sora', sans-serif; }
+.main { background: #07080A; }
+.block-container { padding: 2rem 2.5rem 4rem 2.5rem; }
+
+section[data-testid="stSidebar"] {
+    background: #0B0D10;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+section[data-testid="stSidebar"] .block-container { padding: 2rem 1.2rem; }
+
+/* Hero */
+.hero { border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1.8rem; margin-bottom: 2.4rem; }
+.hero-eyebrow {
+    font-size: 0.65rem; font-weight: 500; color: #7B8EE0;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: #7B8EE0; }
+.hero-title { font-size: 2.6rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 10px; }
+.hero-title span { color: #7B8EE0; }
+.hero-desc { font-size: 0.88rem; font-weight: 300; color: #8A95A8; line-height: 1.7; max-width: 680px; }
+
+/* Metrics */
+.metric-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 1px; background: rgba(255,255,255,0.05);
+    border-radius: 12px; overflow: hidden; margin-bottom: 2rem;
+}
+.metric-cell { background: #0B0D10; padding: 20px 22px; }
+.metric-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.85rem; font-weight: 500; color: #FFFFFF;
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px;
+}
+.metric-number.accent { color: #7B8EE0; }
+.metric-name { font-size: 0.65rem; font-weight: 500; color: #5A6070; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+.metric-source { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: #2E3340; }
+
+/* Section labels */
+.section-wrap { margin-bottom: 0.4rem; }
+.section-title { font-size: 0.72rem; font-weight: 600; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+.section-explain { font-size: 0.8rem; font-weight: 300; color: #8A95A8; line-height: 1.65; margin-bottom: 12px; }
+
+/* Insight */
+.insight {
+    background: #0F1118; border: 1px solid rgba(123,142,224,0.2);
+    border-left: 3px solid #7B8EE0; border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin-bottom: 2rem;
+    font-size: 0.82rem; color: #8A95A8; line-height: 1.7;
+}
+.insight strong { color: #B0BEFF; font-weight: 500; }
+
+/* Divider */
+.section-divider { height: 1px; background: rgba(255,255,255,0.05); margin: 2.5rem 0; }
+
+/* Sidebar */
+.sb-logo { font-size: 1rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 2px; }
+.sb-sub { font-size: 0.65rem; color: #3A4050; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sb-section { font-size: 0.58rem; font-weight: 600; color: #3A4050; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 6px; margin-top: 18px; }
+.sb-item { font-size: 0.78rem; color: #8A95A8; margin-bottom: 3px; line-height: 1.5; }
+.sb-item code { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #7B8EE0; background: rgba(123,142,224,0.1); padding: 1px 5px; border-radius: 3px; }
+.sb-coverage { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 500; color: #7B8EE0; letter-spacing: -0.04em; line-height: 1; margin-bottom: 2px; }
+.sb-note { font-size: 0.68rem; color: #3A4050; }
+.sb-pill { display: inline-block; font-size: 0.6rem; font-weight: 500; color: #5A6070; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 2px 9px; margin: 2px 2px 2px 0; letter-spacing: 0.04em; }
+
+/* Streamlit overrides */
+div[data-testid="stDataFrame"] { border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
+.stSelectbox > div > div { background: #0B0D10; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; }
+.stTextInput > div > div > input { background: #0B0D10; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; color: #FFFFFF; font-family: 'Sora', sans-serif; }
+.stTextInput > div > div > input::placeholder { color: #3A4050; }
 </style>
 """, unsafe_allow_html=True)
 
-ACCENT = "#00d4ff"
-CHART_BG = "#10121a"
-GRID_COLOR = "#1c1f29"
-TEXT_COLOR = "#cbd5e1"
+ACCENT   = "#7B8EE0"
+REJECT   = "#C0392B"
+BG_CHART = "#0B0D10"
+GRID     = "rgba(255,255,255,0.04)"
+TEXT     = "#8A95A8"
 
 def get_connection():
     return psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
+        host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"),
+        dbname=os.getenv("DB_NAME"), user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD")
     )
 
@@ -86,16 +114,13 @@ def load_tracks():
 @st.cache_data
 def load_artists():
     conn = get_connection()
-    df = pd.read_sql("""
-        SELECT
-            artist_id,
-            COALESCE(name, 'Unknown') as name,
-            COALESCE(type, 'Unknown') as type,
-            COALESCE(gender, 'Unknown') as gender,
-            COALESCE(country, 'Unknown') as country,
-            COALESCE(disambiguation, 'Unknown') as disambiguation
-        FROM stg_artists
-    """, conn)
+    df = pd.read_sql("""SELECT artist_id,
+        COALESCE(name,'Unknown') as name,
+        COALESCE(type,'Unknown') as type,
+        COALESCE(gender,'Unknown') as gender,
+        COALESCE(country,'Unknown') as country,
+        COALESCE(disambiguation,'Unknown') as disambiguation
+        FROM stg_artists""", conn)
     conn.close()
     return df
 
@@ -106,196 +131,234 @@ def load_rejects():
     conn.close()
     return df
 
-def chart_layout(fig, height=350):
+def chart_base(fig, h=300):
     fig.update_layout(
-        paper_bgcolor=CHART_BG,
-        plot_bgcolor=CHART_BG,
-        font=dict(color=TEXT_COLOR, family="Inter, sans-serif"),
-        height=height,
-        margin=dict(l=10, r=10, t=10, b=10),
-        showlegend=False,
-        coloraxis_showscale=False,
-        xaxis=dict(gridcolor=GRID_COLOR, showgrid=True, zeroline=False),
-        yaxis=dict(gridcolor=GRID_COLOR, showgrid=False, zeroline=False),
+        paper_bgcolor=BG_CHART, plot_bgcolor=BG_CHART,
+        font=dict(color=TEXT, family="Sora, sans-serif", size=11),
+        height=h, margin=dict(l=0, r=48, t=8, b=0),
+        showlegend=False, coloraxis_showscale=False,
+        xaxis=dict(gridcolor=GRID, showgrid=True, zeroline=False,
+                   tickfont=dict(size=10, color="#5A6070")),
+        yaxis=dict(gridcolor=GRID, showgrid=False, zeroline=False,
+                   tickfont=dict(size=10, color="#8A95A8")),
     )
     return fig
 
-df_tracks = load_tracks()
+df_tracks  = load_tracks()
 df_artists = load_artists()
 df_rejects = load_rejects()
 
 # ── SIDEBAR ──────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("""
-    <div class="brand">
-        <div class="brand-dot"></div>
-        <div class="brand-text">ETL Music Pipeline</div>
-    </div>
-    <div class="brand-sub">Data Ingestion Subsystem</div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='sb-logo'>ETL Music Pipeline</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-sub'>Data Ingestion Subsystem</div>", unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="sidebar-block">
-        <div class="sidebar-block-label">Data Sources</div>
-        <span class="pill">Spotify CSV</span><span class="pill">MusicBrainz API</span>
-        <div class="sidebar-block-sub" style="margin-top:6px;">114,000 raw Spotify tracks + live MusicBrainz artist lookup</div>
-    </div>
-    <div class="sidebar-block">
-        <div class="sidebar-block-label">Database</div>
-        <div class="sidebar-block-value">PostgreSQL</div>
-        <div class="sidebar-block-sub">stg_tracks · stg_artists · stg_rejects</div>
-        <div class="sidebar-block-sub">stg = staging tables (cleaned, validated data)</div>
-    </div>
-    <div class="sidebar-block">
-        <div class="sidebar-block-label">Test Coverage</div>
-        <div class="coverage-big">100%</div>
-        <div class="sidebar-block-sub">20 tests · pytest · above the 80% requirement</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='sb-section'>What this is</div>", unsafe_allow_html=True)
+    st.markdown("""<div class='sb-item'>A Python pipeline that pulls music data
+    from two sources, checks every row for problems,
+    and stores only clean data in a database.</div>""", unsafe_allow_html=True)
 
-    st.markdown("<div class='sidebar-block-label' style='margin-top:18px;'>Filters</div>", unsafe_allow_html=True)
-    genre_filter = st.selectbox("Filter by genre", ["All"] + sorted(df_tracks['track_genre'].unique().tolist()))
-    search = st.text_input("Search track or artist", placeholder="e.g. kendrick, drake, HUMBLE.")
+    st.markdown("<div class='sb-section'>Data Sources</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-item'>Spotify CSV — 114,000 song tracks</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-item'>MusicBrainz API — live artist lookup</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='sidebar-block-label' style='margin-top:18px;'>Stack</div>", unsafe_allow_html=True)
-    st.markdown("""
-    <span class="pill">Python</span><span class="pill">pandas</span><span class="pill">PostgreSQL</span>
-    <span class="pill">psycopg2</span><span class="pill">pytest</span><span class="pill">Streamlit</span>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='sb-section'>Database Tables</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-item'><code>stg_tracks</code> — 89,740 clean songs</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-item'><code>stg_artists</code> — 25 artists</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-item'><code>stg_rejects</code> — 24,260 bad rows</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-note' style='margin-top:4px;'>stg = staging, a holding area for validated data</div>", unsafe_allow_html=True)
 
-# ── HEADER ───────────────────────────────────────────────
-st.markdown("# ETL Music Pipeline")
-st.markdown("<span style='color:#8b95a8;'>This dashboard shows the results of a Python ETL pipeline that extracted 114,000 Spotify tracks and 25 MusicBrainz artists, validated and cleaned them, and loaded the results into PostgreSQL staging tables.</span>", unsafe_allow_html=True)
-st.markdown("---")
+    st.markdown("<div class='sb-section'>Test Coverage</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-coverage'>100%</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sb-note'>20 tests · pytest · requirement was 80%</div>", unsafe_allow_html=True)
+
+    st.markdown("<div class='sb-section'>Filters</div>", unsafe_allow_html=True)
+    genre_filter = st.selectbox("Genre", ["All"] + sorted(df_tracks['track_genre'].unique().tolist()), label_visibility="collapsed")
+    search = st.text_input("Search", placeholder="song or artist name", label_visibility="collapsed")
+
+    st.markdown("<div class='sb-section'>Built with</div>", unsafe_allow_html=True)
+    for t in ["Python","pandas","PostgreSQL","psycopg2","pytest","Streamlit","Plotly"]:
+        st.markdown(f"<span class='sb-pill'>{t}</span>", unsafe_allow_html=True)
+
+# ── HERO ─────────────────────────────────────────────────
+st.markdown("""
+<div class='hero'>
+  <div class='hero-eyebrow'>Data Engineering · Bootcamp Project</div>
+  <div class='hero-title'>ETL <span>Music</span> Pipeline</div>
+  <div class='hero-desc'>
+    This dashboard shows the results of a Python ETL pipeline.
+    It pulled 114,000 Spotify songs and 25 artists from the MusicBrainz website,
+    checked every row for problems, removed bad data,
+    and stored the clean results in a PostgreSQL database.
+    Everything you see below comes directly from that database.
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ── METRICS ──────────────────────────────────────────────
-col1, col2, col3, col4, col5 = st.columns(5)
-metrics = [
-    ("Clean Tracks Loaded", f"{len(df_tracks):,}", col1),
-    ("Artists Loaded", str(len(df_artists)), col2),
-    ("Rows Rejected", f"{len(df_rejects):,}", col3),
-    ("Unique Genres", str(df_tracks['track_genre'].nunique()), col4),
-    ("Avg Popularity Score", f"{df_tracks['popularity'].mean():.1f}", col5),
-]
-for label, value, col in metrics:
-    with col:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">{label}</div>
-            <div class="metric-value">{value}</div>
-        </div>
-        """, unsafe_allow_html=True)
+st.markdown(f"""
+<div class='metric-grid'>
+  <div class='metric-cell'>
+    <div class='metric-name'>Songs loaded</div>
+    <div class='metric-number accent'>{len(df_tracks):,}</div>
+    <div class='metric-source'>from stg_tracks</div>
+  </div>
+  <div class='metric-cell'>
+    <div class='metric-name'>Artists loaded</div>
+    <div class='metric-number'>{len(df_artists)}</div>
+    <div class='metric-source'>from stg_artists</div>
+  </div>
+  <div class='metric-cell'>
+    <div class='metric-name'>Rows rejected</div>
+    <div class='metric-number'>{len(df_rejects):,}</div>
+    <div class='metric-source'>from stg_rejects</div>
+  </div>
+  <div class='metric-cell'>
+    <div class='metric-name'>Music genres</div>
+    <div class='metric-number'>{df_tracks['track_genre'].nunique()}</div>
+    <div class='metric-source'>from stg_tracks</div>
+  </div>
+  <div class='metric-cell'>
+    <div class='metric-name'>Avg popularity</div>
+    <div class='metric-number'>{df_tracks['popularity'].mean():.1f}<span style='font-size:1rem;color:#3A4050'>/100</span></div>
+    <div class='metric-source'>Spotify score · stg_tracks</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
+# ── INSIGHT ───────────────────────────────────────────────
+st.markdown(f"""
+<div class='insight'>
+  <strong>What happened when the pipeline ran:</strong> It started with
+  <strong>114,000 raw songs</strong> from a Spotify dataset.
+  After checking every row for problems, <strong>89,740 passed</strong> and were saved.
+  <strong>24,260 were rejected</strong> — almost all because the same song appeared
+  multiple times under different genre labels in the original file.
+  Every rejected row is stored with the exact reason, so nothing disappears silently.
+</div>
+""", unsafe_allow_html=True)
 
-# ── ROW 1 ────────────────────────────────────────────────
+# ── ROW 1 ─────────────────────────────────────────────────
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<div class="section-header">Top 10 Genres by Track Count</div>', unsafe_allow_html=True)
-    st.caption("From stg_tracks. The Kaggle Spotify dataset is balanced with roughly 1,000 tracks per genre across 113 genres. Small differences like 999 vs 1,000 come from duplicate removal in the transform step.")
-    genre_counts = df_tracks['track_genre'].value_counts().head(10).reset_index()
-    genre_counts.columns = ['genre', 'count']
-    fig = px.bar(genre_counts, x='count', y='genre', orientation='h',
-                 text='count', color_discrete_sequence=[ACCENT])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-    st.plotly_chart(chart_layout(fig, 380), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Top 10 genres by song count</div>
+      <div class='section-explain'>The Spotify dataset was built with roughly 1,000 songs per genre across 113 genres — so every bar looks similar. Small differences come from removing duplicate songs during cleaning.</div>
+    </div>""", unsafe_allow_html=True)
+    gc = df_tracks['track_genre'].value_counts().head(10).reset_index()
+    gc.columns = ['genre','count']
+    fig = px.bar(gc, x='count', y='genre', orientation='h', text='count', color_discrete_sequence=[ACCENT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    fig.update_layout(yaxis={'categoryorder':'total ascending'})
+    st.plotly_chart(chart_base(fig, 340), use_container_width=True)
 
 with col2:
-    st.markdown('<div class="section-header">Artist Countries — MusicBrainz Drake Query</div>', unsafe_allow_html=True)
-    st.caption("From stg_artists. This shows the countries of the 25 artists returned by the MusicBrainz API when queried for 'Drake'. These are real artists named Drake, not duplicates. The query is configured in config/sources.yml.")
-    country_counts = df_artists[df_artists['country'] != 'Unknown']['country'].value_counts().head(10).reset_index()
-    country_counts.columns = ['country', 'count']
-    fig = px.bar(country_counts, x='country', y='count',
-                 text='count', color_discrete_sequence=[ACCENT])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    st.plotly_chart(chart_layout(fig, 380), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Countries of artists named Drake</div>
+      <div class='section-explain'>The pipeline searched the MusicBrainz music database live for "Drake" and got back 25 real, different people — not the same person 25 times. The 7 from the US are 7 distinct artists who happen to share the name Drake.</div>
+    </div>""", unsafe_allow_html=True)
+    cc = df_artists[df_artists['country'] != 'Unknown']['country'].value_counts().head(10).reset_index()
+    cc.columns = ['country','count']
+    fig = px.bar(cc, x='country', y='count', text='count', color_discrete_sequence=[ACCENT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    st.plotly_chart(chart_base(fig, 340), use_container_width=True)
 
-st.markdown("---")
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
-# ── ROW 2 ────────────────────────────────────────────────
+# ── ROW 2 ─────────────────────────────────────────────────
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown('<div class="section-header">Popularity Distribution</div>', unsafe_allow_html=True)
-    st.caption("Spotify scores every track 0-100 based on recent streams. Most tracks in this dataset score low, meaning they are obscure songs. Only 1,282 tracks score 76-100, those are the actual hits.")
-    pop_bins = pd.cut(df_tracks['popularity'], bins=[0, 25, 50, 75, 100],
-                      labels=['0-25', '26-50', '51-75', '76-100'])
-    pop_counts = pop_bins.value_counts().sort_index().reset_index()
-    pop_counts.columns = ['range', 'count']
-    fig = px.bar(pop_counts, x='range', y='count',
-                 text='count', color_discrete_sequence=[ACCENT])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    st.plotly_chart(chart_layout(fig, 320), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>How popular are these songs?</div>
+      <div class='section-explain'>Spotify scores every song 0–100 based on how much it's being streamed right now, not ever. Most songs are obscure. Only 1,282 songs score 76–100 — those are the current hits.</div>
+    </div>""", unsafe_allow_html=True)
+    pb = pd.cut(df_tracks['popularity'], bins=[0,25,50,75,100],
+                labels=['0–25  Unknown','26–50  Moderate','51–75  Popular','76–100  Hit'])
+    pc = pb.value_counts().sort_index().reset_index()
+    pc.columns = ['range','count']
+    fig = px.bar(pc, x='range', y='count', text='count', color_discrete_sequence=[ACCENT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    st.plotly_chart(chart_base(fig, 300), use_container_width=True)
 
 with col2:
-    st.markdown('<div class="section-header">Explicit vs Clean</div>', unsafe_allow_html=True)
-    st.caption("From stg_tracks. Shows what percentage of the 89,740 loaded tracks are marked explicit by Spotify vs clean.")
-    explicit_counts = df_tracks['explicit'].value_counts().reset_index()
-    explicit_counts.columns = ['explicit', 'count']
-    explicit_counts['explicit'] = explicit_counts['explicit'].map({True: 'Explicit', False: 'Clean'})
-    fig = px.pie(explicit_counts, values='count', names='explicit',
-                 color_discrete_map={'Explicit': '#ef4444', 'Clean': ACCENT},
-                 hole=0.55)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Explicit vs clean songs</div>
+      <div class='section-explain'>Spotify marks each song as explicit or clean. This shows the split across all 89,740 loaded songs. The flag comes directly from Spotify — the pipeline stores it as-is.</div>
+    </div>""", unsafe_allow_html=True)
+    ec = df_tracks['explicit'].value_counts().reset_index()
+    ec.columns = ['explicit','count']
+    ec['explicit'] = ec['explicit'].map({True:'Explicit', False:'Clean'})
+    fig = px.pie(ec, values='count', names='explicit',
+                 color_discrete_map={'Explicit':REJECT,'Clean':ACCENT}, hole=0.62)
     fig.update_traces(textposition='inside', textinfo='percent+label',
-                      textfont=dict(color=TEXT_COLOR))
-    fig.update_layout(paper_bgcolor=CHART_BG, plot_bgcolor=CHART_BG,
-                      font=dict(color=TEXT_COLOR), height=320,
-                      margin=dict(l=10, r=10, t=10, b=10), showlegend=False)
+                      textfont=dict(size=11, color="#FFFFFF"),
+                      marker=dict(line=dict(color=BG_CHART, width=2)))
+    fig.update_layout(paper_bgcolor=BG_CHART, plot_bgcolor=BG_CHART,
+                      font=dict(color=TEXT, family="Sora, sans-serif"),
+                      height=300, margin=dict(l=0,r=0,t=8,b=0), showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
 with col3:
-    st.markdown('<div class="section-header">Rejection Reasons</div>', unsafe_allow_html=True)
-    st.caption("From stg_rejects. Every row that failed validation is stored here with a reason. 24,258 were duplicate track IDs, the same song listed under multiple genres in the source dataset. Only 2 had missing values.")
-    reject_reasons = df_rejects.groupby('reason').size().reset_index(name='count')
-    fig = px.bar(reject_reasons, x='count', y='reason', orientation='h',
-                 text='count', color_discrete_sequence=['#ef4444'])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    st.plotly_chart(chart_layout(fig, 320), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Why were songs rejected?</div>
+      <div class='section-explain'>Every song that failed the quality check is stored here with the specific reason why. Almost all 24,258 duplicates exist because Spotify lists the same song once per genre it belongs to.</div>
+    </div>""", unsafe_allow_html=True)
+    rr = df_rejects.groupby('reason').size().reset_index(name='count')
+    fig = px.bar(rr, x='count', y='reason', orientation='h', text='count', color_discrete_sequence=[REJECT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    st.plotly_chart(chart_base(fig, 300), use_container_width=True)
 
-st.markdown("---")
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
-# ── ROW 3 ────────────────────────────────────────────────
+# ── ROW 3 ─────────────────────────────────────────────────
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<div class="section-header">Average Popularity by Genre</div>', unsafe_allow_html=True)
-    st.caption("From stg_tracks. For each genre, this shows the average Spotify popularity score across all tracks in that genre. Higher means more streamed on average.")
-    avg_pop = df_tracks.groupby('track_genre')['popularity'].mean().sort_values(ascending=False).head(10).reset_index()
-    avg_pop.columns = ['genre', 'avg_popularity']
-    avg_pop['avg_popularity'] = avg_pop['avg_popularity'].round(1)
-    fig = px.bar(avg_pop, x='avg_popularity', y='genre', orientation='h',
-                 text='avg_popularity', color_discrete_sequence=[ACCENT])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-    st.plotly_chart(chart_layout(fig, 380), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Which genres have the most popular songs on average?</div>
+      <div class='section-explain'>For each genre, this averages the Spotify popularity score across all its songs. Higher means people are actively streaming those songs right now.</div>
+    </div>""", unsafe_allow_html=True)
+    ap = df_tracks.groupby('track_genre')['popularity'].mean().sort_values(ascending=False).head(10).reset_index()
+    ap.columns = ['genre','avg_popularity']
+    ap['avg_popularity'] = ap['avg_popularity'].round(1)
+    fig = px.bar(ap, x='avg_popularity', y='genre', orientation='h', text='avg_popularity', color_discrete_sequence=[ACCENT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    fig.update_layout(yaxis={'categoryorder':'total ascending'})
+    st.plotly_chart(chart_base(fig, 340), use_container_width=True)
 
 with col2:
-    st.markdown('<div class="section-header">Top 10 Artists by Track Count</div>', unsafe_allow_html=True)
-    st.caption("From stg_tracks. Shows which artists appear most frequently across the 89,740 loaded tracks. Artists with many tracks appear across multiple genres in the dataset.")
-    artist_counts = df_tracks['artists'].value_counts().head(10).reset_index()
-    artist_counts.columns = ['artist', 'count']
-    fig = px.bar(artist_counts, x='count', y='artist', orientation='h',
-                 text='count', color_discrete_sequence=[ACCENT])
-    fig.update_traces(textposition='outside', textfont=dict(color=TEXT_COLOR))
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-    st.plotly_chart(chart_layout(fig, 380), use_container_width=True)
+    st.markdown("""<div class='section-wrap'>
+      <div class='section-title'>Artists appearing in the most songs</div>
+      <div class='section-explain'>Artists with high counts here appear across many genres in the dataset — not because they made more songs, but because their songs were tagged under multiple genres in the Spotify source file.</div>
+    </div>""", unsafe_allow_html=True)
+    ac = df_tracks['artists'].value_counts().head(10).reset_index()
+    ac.columns = ['artist','count']
+    fig = px.bar(ac, x='count', y='artist', orientation='h', text='count', color_discrete_sequence=[ACCENT])
+    fig.update_traces(textposition='outside', textfont=dict(color="#8A95A8", size=10), marker_line_width=0)
+    fig.update_layout(yaxis={'categoryorder':'total ascending'})
+    st.plotly_chart(chart_base(fig, 340), use_container_width=True)
 
-st.markdown("---")
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
 # ── TOP 10 TRACKS ─────────────────────────────────────────
-st.markdown('<div class="section-header">Top 10 Most Popular Tracks</div>', unsafe_allow_html=True)
-st.caption("From stg_tracks. Ranked by Spotify popularity score out of 100. Popularity is based on recent stream counts and updates over time.")
-top_tracks = df_tracks.nlargest(10, 'popularity')[['track_name', 'artists', 'album_name', 'popularity', 'track_genre']].copy()
-top_tracks.index = range(1, 11)
-st.dataframe(top_tracks, use_container_width=True)
+st.markdown("""<div class='section-wrap'>
+  <div class='section-title'>Top 10 most popular songs right now</div>
+  <div class='section-explain'>Ranked by Spotify's popularity score out of 100. This score reflects recent streaming activity, not how famous a song was historically.</div>
+</div>""", unsafe_allow_html=True)
+tt = df_tracks.nlargest(10,'popularity')[['track_name','artists','album_name','popularity','track_genre']].copy()
+tt.index = range(1,11)
+tt.columns = ['Song','Artist','Album','Popularity (0–100)','Genre']
+st.dataframe(tt, use_container_width=True)
 
-st.markdown("---")
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
 # ── TRACKS EXPLORER ───────────────────────────────────────
-st.markdown('<div class="section-header">Tracks Explorer</div>', unsafe_allow_html=True)
-st.caption("Search across 89,740 clean tracks from stg_tracks. Typos are okay, fuzzy matching will find the closest result.")
+st.markdown("""<div class='section-wrap'>
+  <div class='section-title'>Search all 89,740 songs</div>
+  <div class='section-explain'>Type a song name or artist in the sidebar search box. Typos are fine — the search finds the closest match automatically.</div>
+</div>""", unsafe_allow_html=True)
 
 filtered = df_tracks.copy()
 if genre_filter != "All":
@@ -303,51 +366,48 @@ if genre_filter != "All":
 
 used_fuzzy = False
 fuzzy_suggestions = []
-
 if search:
-    search_lower = search.lower().strip()
+    s = search.lower().strip()
     exact = filtered[
-        filtered['track_name'].str.lower().str.contains(search_lower, na=False) |
-        filtered['artists'].str.lower().str.contains(search_lower, na=False)
+        filtered['track_name'].str.lower().str.contains(s, na=False) |
+        filtered['artists'].str.lower().str.contains(s, na=False)
     ]
     if len(exact) > 0:
         filtered = exact
     else:
-        candidates = pd.concat([
-            filtered['artists'].dropna(),
-            filtered['track_name'].dropna()
-        ]).unique().tolist()
+        candidates = pd.concat([filtered['artists'].dropna(), filtered['track_name'].dropna()]).unique().tolist()
         fuzzy_suggestions = difflib.get_close_matches(search, candidates, n=5, cutoff=0.6)
         if fuzzy_suggestions:
             used_fuzzy = True
-            mask = (
-                filtered['artists'].isin(fuzzy_suggestions) |
-                filtered['track_name'].isin(fuzzy_suggestions)
-            )
+            mask = filtered['artists'].isin(fuzzy_suggestions) | filtered['track_name'].isin(fuzzy_suggestions)
             filtered = filtered[mask]
         else:
             filtered = filtered.iloc[0:0]
 
 if search and used_fuzzy:
-    st.warning(f"No exact match for **\"{search}\"** — showing closest matches: {', '.join(fuzzy_suggestions)}")
+    st.warning(f"No exact match for **\"{search}\"** — showing closest results: {', '.join(fuzzy_suggestions)}")
 elif search and len(filtered) > 0:
-    st.success(f"Found **{len(filtered):,}** tracks matching **\"{search}\"**")
+    st.success(f"Found **{len(filtered):,}** songs matching **\"{search}\"**")
 elif search and len(filtered) == 0:
-    st.error(f"No tracks found for **\"{search}\"** — try a different spelling")
+    st.error(f"No songs found for **\"{search}\"** — try a different spelling")
 elif genre_filter != "All":
-    st.info(f"Showing **{len(filtered):,}** tracks in **{genre_filter}**")
+    st.info(f"Showing **{len(filtered):,}** songs in the **{genre_filter}** genre")
 else:
-    st.markdown(f"Showing **{len(filtered):,}** tracks — use the sidebar to search or filter by genre", unsafe_allow_html=True)
+    st.markdown(f"<div class='section-explain'>Showing all {len(filtered):,} songs. Use the sidebar to search or filter.</div>", unsafe_allow_html=True)
 
-filtered_display = filtered[['track_name', 'artists', 'album_name', 'popularity', 'track_genre']].head(50).copy()
-filtered_display.index = range(1, len(filtered_display) + 1)
-st.dataframe(filtered_display, use_container_width=True)
+fd = filtered[['track_name','artists','album_name','popularity','track_genre']].head(50).copy()
+fd.columns = ['Song','Artist','Album','Popularity','Genre']
+fd.index = range(1, len(fd)+1)
+st.dataframe(fd, use_container_width=True)
 
-st.markdown("---")
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
 # ── ARTISTS ───────────────────────────────────────────────
-st.markdown('<div class="section-header">Artists — MusicBrainz Drake Query</div>', unsafe_allow_html=True)
-st.caption("From stg_artists. These 25 artists were returned by a live MusicBrainz API call querying the name 'Drake'. They are real, distinct artists whose names match or contain Drake. The query is set in config/sources.yml and runs every time the pipeline executes.")
-artists_display = df_artists[['name', 'type', 'gender', 'country', 'disambiguation']].copy()
-artists_display.index = range(1, len(artists_display) + 1)
-st.dataframe(artists_display, use_container_width=True)
+st.markdown("""<div class='section-wrap'>
+  <div class='section-title'>25 artists returned by the MusicBrainz search</div>
+  <div class='section-explain'>The pipeline searched the MusicBrainz music database live for the name "Drake." It returned 25 real, distinct artists — musicians, composers, bands — whose names match or include Drake. These are not the same person. The search query is set in the config file and runs every time the pipeline executes.</div>
+</div>""", unsafe_allow_html=True)
+ad = df_artists[['name','type','gender','country','disambiguation']].copy()
+ad.columns = ['Name','Type','Gender','Country','Description']
+ad.index = range(1, len(ad)+1)
+st.dataframe(ad, use_container_width=True)
