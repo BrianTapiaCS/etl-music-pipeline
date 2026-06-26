@@ -2,6 +2,12 @@ import pandas as pd
 from unittest.mock import patch, MagicMock
 from src.extract import extract_csv, extract_musicbrainz
 
+@patch('src.extract.requests.get')
+def test_extract_musicbrainz_handles_ssl_error(mock_get):
+    mock_get.side_effect = Exception("SSLError")
+    df = extract_musicbrainz('Drake')
+    assert len(df) == 0
+    
 def test_extract_csv_returns_dataframe():
     df = extract_csv('data/spotify-tracks-dataset.csv')
     assert isinstance(df, pd.DataFrame)

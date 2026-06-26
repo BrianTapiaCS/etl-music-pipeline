@@ -85,3 +85,9 @@ def test_artists_removes_duplicates():
     clean_df, rejects = transform_artists(df)
     assert len(clean_df) == 1
     assert rejects[0]['reason'] == 'duplicate artist id'
+
+def test_transform_artists_handles_empty_dataframe():
+    df = pd.DataFrame()
+    clean_df, rejects = transform_artists(df)
+    assert len(clean_df) == 0
+    assert rejects == []
