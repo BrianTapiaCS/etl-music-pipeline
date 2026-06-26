@@ -33,6 +33,9 @@ def transform_tracks(df):
     return df, rejects
 
 def transform_artists(df):
+    if df.empty:
+        logger.warning("No artist data to transform — skipping.")
+        return df, []
     logger.info(f"Before cleaning artists: {len(df)} rows")
     rejects = []
 
